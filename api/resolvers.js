@@ -1,10 +1,10 @@
 const mockGamesDatabase = {
     1: {name: "Destiny", releaseYear: 2014, criticScore: 7.6, esrbRating: "TEEN", platformIds: [2,3,4,5], developerId: 1},
-    2: {name: "Horizon Zero Dawn", releaseYear: 2017, criticScore: 8.9, esrbRating: "TEEN", platformIds: [4], developerId: 15, canYouPetTheDog: true},
+    2: {name: "Horizon Zero Dawn", releaseYear: 2017, criticScore: 8.9, esrbRating: "TEEN", platformIds: [4], developerId: 2, canYouPetTheDog: true},
     3: {name: "Halo 3", releaseYear: 2007, criticScore: 9.4, esrbRating: "MATURE", platformIds: [3], developerId: 1},
     4: {name: "Call of Duty 4: Modern Warfare", releaseYear: 2007, criticScore: 9.4, esrbRating: "MATURE", platformIds: [2,3], canYouPetTheDog: false},
     5: {name: "Metroid Dread", releaseYear: 2021, criticScore: 8.8, esrbRating: "TEEN", platformIds: [1], developerId: 3, canYouPetTheDog: false},
-    6: {name: "Horizon Forbidden West", releaseYear: 2022, criticScore: 8.8, esrbRating: "TEEN", platformIds: [4,5], developerId: 15, canYouPetTheDog: true}
+    6: {name: "Horizon Forbidden West", releaseYear: 2022, criticScore: 8.8, esrbRating: "TEEN", platformIds: [4,5], developerId: 2, canYouPetTheDog: true}
 };
 const mockDevelopersDatabase = {
     1: {name: "Bungie", yearFounded: 1991, gameIds: [1,3]},
