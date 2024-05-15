@@ -38,7 +38,8 @@ No outside database connections exist in this server - instead, databases are mo
 To use this server:
 
 - Clone this repository to your local filesystem.
-- Navigate to the top level of the repository and run `npm install`, and wait for all dependencies to finish installing.
+- Make sure that Node is installed.
+- Navigate to the top level of the repository and run `npm install`. Wait for all dependencies to finish installing.
 - From the top level of the directory, run `npm start` to start the server.
   - The server root runs on http://localhost:4000 by default.
   - By default, the server will be run using [Nodemon](https://nodemon.io/) on [index.js](./index.js). While running via Nodemon, any changes to server source code will cause the server to restart automatically and immediately reflect your changes.
