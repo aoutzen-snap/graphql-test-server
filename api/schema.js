@@ -314,8 +314,7 @@ const typeDefs = `
         existingSeriesId: ID
 
         """
-        Details for a new game series. This will only be used in the event that an existing series ID is not provided or no existing series
-        with the provided ID can be found.
+        Details for a new game series. This will only be used in the event that an existing series ID is not provided.
         """
         seriesDetailsInput: GameSeriesDetailsInput
     }
