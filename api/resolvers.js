@@ -5,13 +5,15 @@ const mockGamesDatabase = {
     4: {name: "Call of Duty 4: Modern Warfare", releaseYear: 2007, criticScore: 9.4, esrbRating: "MATURE", platformIds: [2,3], seriesId: null, canYouPetTheDog: false},
     5: {name: "Metroid Dread", releaseYear: 2021, criticScore: 8.8, esrbRating: "TEEN", platformIds: [1], developerId: 3, seriesId: null, canYouPetTheDog: false},
     6: {name: "Horizon Forbidden West", releaseYear: 2022, criticScore: 8.8, esrbRating: "TEEN", platformIds: [4,6], developerId: 2, seriesId: 2, canYouPetTheDog: true},
-    7: {name: "Horizon: Call of the Mountain", releaseYear: 2023, criticScore: 79, esrbRating: "TEEN", platformIds: [6], developerId: 4, seriesId: 2, canYouPetTheDog: null}
+    7: {name: "Horizon: Call of the Mountain", releaseYear: 2023, criticScore: 7.9, esrbRating: "TEEN", platformIds: [6], developerId: 4, seriesId: 2, canYouPetTheDog: null},
+    8: {name: "The Witcher 2: Assassins of Kings", releaseYear: 2012, criticScore: 8.8, esrbRating: "MATURE", platformIds: [3], developerId: 5, seriesId: null, canYouPetTheDog: null}
 };
 const mockDevelopersDatabase = {
     1: {name: "Bungie", yearFounded: 1991, gameIds: [1,3]},
     2: {name: "Guerrilla Games", yearFounded: 2000, gameIds: [2,6]},
     3: {name: "MercurySteam", yearFounded: 2002, gameIds: [5]},
-    4: {name: "Firesprite Ltd", yearFounded: 2012, gameIds: [7]}
+    4: {name: "Firesprite Ltd", yearFounded: 2012, gameIds: [7]},
+    5: {name: "CD Projekt RED", yearFounded: 2002, gameIds: [8]}
 };
 const mockPlatformsDatabase = {
     1: {name: "Switch", manufacturerName: "Nintendo", releaseYear: 2017, price: 299.99},
@@ -168,22 +170,74 @@ const resolvers = {
                                     on Developer with id ${developerId}: Developer with id ${developerId} was not found`);
                 }
             }
-            if (gameInput["seriesId"] !== undefined && gameInput["seriesId"] !== null) {
-                var seriesId = gameInput["seriesId"];
-                var gameSeriesData = mockGameSeriesDatabase[seriesId];
-                if (gameSeriesData !== undefined && gameSeriesData !== null) {
-                    if (gameSeriesData["seriesEntryIds"] === undefined || gameSeriesData["seriesEntryIds"] === null) {
-                        gameSeriesData["seriesEntryIds"] = [newId];
-                    } else {
-                        gameSeriesData["seriesEntryIds"].push(newId);
+
+            var gameSeriesIdForNewGame = -1;
+            var gameSeriesInput = gameInput["seriesInput"];
+            if (gameSeriesInput !== undefined && gameSeriesInput !== null) {
+                var existingSeriesId = gameSeriesInput["existingSeriesId"];
+                if (existingSeriesId === undefined || existingSeriesId === null) {
+                    // Use the details input to create a new series
+                    var seriesDetailsInput = gameSeriesInput["seriesDetailsInput"];
+                    if (seriesDetailsInput !== undefined && seriesDetailsInput !== null) {
+                        // If details input is provided, create a new series and link it to the new game
+                        var newGameSeriesId = Object.keys(mockGameSeriesDatabase).length + 1;
+                        var newGameSeries = {name: seriesDetailsInput["name"]};
+                        if (seriesDetailsInput["seriesEntryIds"] !== undefined && seriesDetailsInput["seriesEntryIds"] !== null) {
+                            // Add provided array of game ids to new series object
+                            newGameSeries["seriesEntryIds"] = seriesDetailsInput["seriesEntryIds"];
+                            newGameSeries["seriesEntryIds"].push(newId);
+                        }
+                        if (seriesDetailsInput["developerIds"] !== undefined && seriesDetailsInput["developerIds"] !== null) {
+                            // Add provided array of developer ids to new series object
+                            newGameSeries["developerIds"] = seriesDetailsInput["developerIds"];
+                        }
+                        mockGameSeriesDatabase[newGameSeriesId] = newGameSeries;
+                        gameSeriesIdForNewGame = newGameSeriesId;
                     }
                 } else {
-                    throw new Error(`Error: Failed to add Game. Unable to create reciprocal link to Game with id ${newId} 
-                                    on GameSeries with id ${seriesId}: GameSeries with id ${seriesId} was not found`);
+                    // Attempt to set up the new game to be associated with the existing series
+                    gameSeriesIdForNewGame = existingSeriesId;
+                    var gameSeriesData = mockGameSeriesDatabase[existingSeriesId];
+                    if (gameSeriesData !== undefined && gameSeriesData !== null) {
+                        if (gameSeriesData["seriesEntryIds"] === undefined || gameSeriesData["seriesEntryIds"] === null) {
+                            gameSeriesData["seriesEntryIds"] = [newId];
+                        } else {
+                            gameSeriesData["seriesEntryIds"].push(newId);
+                        }
+                    } else {
+                        throw new Error(`Error: Failed to add Game. Unable to create reciprocal link to Game with id ${newId} 
+                                        on GameSeries with id ${existingSeriesId}: GameSeries with id ${existingSeriesId} was not found`);
+                    }
                 }
             }
-            mockGamesDatabase[newId] = gameInput;
-            return {id: newId, ...gameInput};
+
+            // if (gameInput["seriesId"] !== undefined && gameInput["seriesId"] !== null) {
+            //     var seriesId = gameInput["seriesId"];
+            //     var gameSeriesData = mockGameSeriesDatabase[seriesId];
+            //     if (gameSeriesData !== undefined && gameSeriesData !== null) {
+            //         if (gameSeriesData["seriesEntryIds"] === undefined || gameSeriesData["seriesEntryIds"] === null) {
+            //             gameSeriesData["seriesEntryIds"] = [newId];
+            //         } else {
+            //             gameSeriesData["seriesEntryIds"].push(newId);
+            //         }
+            //     } else {
+            //         throw new Error(`Error: Failed to add Game. Unable to create reciprocal link to Game with id ${newId} 
+            //                         on GameSeries with id ${seriesId}: GameSeries with id ${seriesId} was not found`);
+            //     }
+            // }
+            var gameDatabaseObject = {};
+            gameDatabaseObject["name"] = gameInput["name"];
+            gameDatabaseObject["releaseYear"] = gameInput["releaseYear"];
+            gameDatabaseObject["genre"] = gameInput["genre"];
+            gameDatabaseObject["criticScore"] = gameInput["criticScore"];
+            gameDatabaseObject["esrbRating"] = gameInput["esrbRating"];
+            gameDatabaseObject["platformIds"] = gameInput["platformIds"];
+            gameDatabaseObject["developerId"] = gameInput["developerId"];
+            gameDatabaseObject["seriesId"] = gameSeriesIdForNewGame;
+            gameDatabaseObject["canYouPetTheDog"] = gameInput["canYouPetTheDog"];
+            // mockGamesDatabase[newId] = gameInput;
+            mockGamesDatabase[newId] = gameDatabaseObject;
+            return {id: newId, ...gameDatabaseObject};
         },
         updateGameScore: (_, { id, score }) => {
             var gameData = mockGamesDatabase[id];

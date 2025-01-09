@@ -299,12 +299,42 @@ const typeDefs = `
         """
         The series of games to which the game belongs.
         """
-        seriesId: ID
+        seriesInput: GameSeriesInput
 
         """
         Can you pet the dog in this game? Can be true, false, or null if it is not known whether you can pet the dog.
         """
         canYouPetTheDog: Boolean
+    }
+
+    input GameSeriesInput {
+        """
+        The existing series to reference.
+        """
+        existingSeriesId: ID
+
+        """
+        Details for a new game series. This will only be used in the event that an existing series ID is not provided or no existing series
+        with the provided ID can be found.
+        """
+        seriesDetailsInput: GameSeriesDetailsInput
+    }
+
+    input GameSeriesDetailsInput {
+        """
+        The name of the series.
+        """
+        name: String!
+
+        """
+        A list of games in this series.
+        """
+        seriesEntryIds: [ID!]
+
+        """
+        A list of developers that have contributed entries to this series.
+        """
+        developerIds: [ID!]
     }
 
     """
