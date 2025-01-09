@@ -185,6 +185,7 @@ const resolvers = {
                         if (seriesDetailsInput["seriesEntryIds"] !== undefined && seriesDetailsInput["seriesEntryIds"] !== null) {
                             // Add provided array of game ids to new series object
                             newGameSeries["seriesEntryIds"] = seriesDetailsInput["seriesEntryIds"];
+                            // TODO: for each series entry (existing game) ID, get the game from the games database and update the series id
                             newGameSeries["seriesEntryIds"].push(newId);
                         }
                         if (seriesDetailsInput["developerIds"] !== undefined && seriesDetailsInput["developerIds"] !== null) {
@@ -211,20 +212,6 @@ const resolvers = {
                 }
             }
 
-            // if (gameInput["seriesId"] !== undefined && gameInput["seriesId"] !== null) {
-            //     var seriesId = gameInput["seriesId"];
-            //     var gameSeriesData = mockGameSeriesDatabase[seriesId];
-            //     if (gameSeriesData !== undefined && gameSeriesData !== null) {
-            //         if (gameSeriesData["seriesEntryIds"] === undefined || gameSeriesData["seriesEntryIds"] === null) {
-            //             gameSeriesData["seriesEntryIds"] = [newId];
-            //         } else {
-            //             gameSeriesData["seriesEntryIds"].push(newId);
-            //         }
-            //     } else {
-            //         throw new Error(`Error: Failed to add Game. Unable to create reciprocal link to Game with id ${newId} 
-            //                         on GameSeries with id ${seriesId}: GameSeries with id ${seriesId} was not found`);
-            //     }
-            // }
             var gameDatabaseObject = {};
             gameDatabaseObject["name"] = gameInput["name"];
             gameDatabaseObject["releaseYear"] = gameInput["releaseYear"];
@@ -235,8 +222,8 @@ const resolvers = {
             gameDatabaseObject["developerId"] = gameInput["developerId"];
             gameDatabaseObject["seriesId"] = gameSeriesIdForNewGame;
             gameDatabaseObject["canYouPetTheDog"] = gameInput["canYouPetTheDog"];
-            // mockGamesDatabase[newId] = gameInput;
             mockGamesDatabase[newId] = gameDatabaseObject;
+            
             return {id: newId, ...gameDatabaseObject};
         },
         updateGameScore: (_, { id, score }) => {
