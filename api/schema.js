@@ -42,6 +42,11 @@ const typeDefs = `
         getGamesFiltered(filterInput: FilterInput!): [Game!]!
 
         """
+        Retrieve all registered game series.
+        """
+        getAllGameSeries: [GameSeries!]!
+
+        """
         Retrieve a single Developer by its unique ID. If no Developer is found, returns null.
         """
         getDeveloper(id: ID!): Developer
@@ -137,9 +142,39 @@ const typeDefs = `
         platforms: [Platform!]!
 
         """
+        The series of games to which the game belongs.
+        """
+        series: GameSeries
+
+        """
         Can you pet the dog in this game? Can be true, false, or null if it is not known whether you can pet the dog.
         """
         canYouPetTheDog: Boolean
+    }
+
+    """
+    Type representing an entire video game franchise/IP.
+    """
+    type GameSeries {
+        """
+        The unique ID of the series.
+        """
+        id: ID!
+
+        """
+        The name of the series.
+        """
+        name: String!
+
+        """
+        A list of games in this series.
+        """
+        seriesEntries: [Game!]
+
+        """
+        A list of developers that have contributed entries to this series.
+        """
+        developers: [Developer!]
     }
 
     """
@@ -260,6 +295,11 @@ const typeDefs = `
         The developer of the game.
         """
         developerId: ID
+
+        """
+        The series of games to which the game belongs.
+        """
+        seriesId: ID
 
         """
         Can you pet the dog in this game? Can be true, false, or null if it is not known whether you can pet the dog.

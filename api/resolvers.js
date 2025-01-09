@@ -1,15 +1,17 @@
 const mockGamesDatabase = {
-    1: {name: "Destiny", releaseYear: 2014, criticScore: 7.6, esrbRating: "TEEN", platformIds: [2,3,4,5], developerId: 1},
-    2: {name: "Horizon Zero Dawn", releaseYear: 2017, criticScore: 8.9, esrbRating: "TEEN", platformIds: [4], developerId: 2, canYouPetTheDog: true},
-    3: {name: "Halo 3", releaseYear: 2007, criticScore: 9.4, esrbRating: "MATURE", platformIds: [3], developerId: 1},
-    4: {name: "Call of Duty 4: Modern Warfare", releaseYear: 2007, criticScore: 9.4, esrbRating: "MATURE", platformIds: [2,3], canYouPetTheDog: false},
-    5: {name: "Metroid Dread", releaseYear: 2021, criticScore: 8.8, esrbRating: "TEEN", platformIds: [1], developerId: 3, canYouPetTheDog: false},
-    6: {name: "Horizon Forbidden West", releaseYear: 2022, criticScore: 8.8, esrbRating: "TEEN", platformIds: [4,5], developerId: 2, canYouPetTheDog: true}
+    1: {name: "Destiny", releaseYear: 2014, criticScore: 7.6, esrbRating: "TEEN", platformIds: [2,3,4,5], seriesId: null, developerId: 1},
+    2: {name: "Horizon Zero Dawn", releaseYear: 2017, criticScore: 8.9, esrbRating: "TEEN", platformIds: [4], developerId: 2, seriesId: 2, canYouPetTheDog: true},
+    3: {name: "Halo 3", releaseYear: 2007, criticScore: 9.4, esrbRating: "MATURE", platformIds: [3], seriesId: 1, developerId: 1},
+    4: {name: "Call of Duty 4: Modern Warfare", releaseYear: 2007, criticScore: 9.4, esrbRating: "MATURE", platformIds: [2,3], seriesId: null, canYouPetTheDog: false},
+    5: {name: "Metroid Dread", releaseYear: 2021, criticScore: 8.8, esrbRating: "TEEN", platformIds: [1], developerId: 3, seriesId: null, canYouPetTheDog: false},
+    6: {name: "Horizon Forbidden West", releaseYear: 2022, criticScore: 8.8, esrbRating: "TEEN", platformIds: [4,6], developerId: 2, seriesId: 2, canYouPetTheDog: true},
+    7: {name: "Horizon: Call of the Mountain", releaseYear: 2023, criticScore: 79, esrbRating: "TEEN", platformIds: [6], developerId: 4, seriesId: 2, canYouPetTheDog: null}
 };
 const mockDevelopersDatabase = {
     1: {name: "Bungie", yearFounded: 1991, gameIds: [1,3]},
     2: {name: "Guerrilla Games", yearFounded: 2000, gameIds: [2,6]},
-    3: {name: "MercurySteam", yearFounded: 2002, gameIds: [5]}
+    3: {name: "MercurySteam", yearFounded: 2002, gameIds: [5]},
+    4: {name: "Firesprite Ltd", yearFounded: 2012, gameIds: [7]}
 };
 const mockPlatformsDatabase = {
     1: {name: "Switch", manufacturerName: "Nintendo", releaseYear: 2017, price: 299.99},
@@ -20,6 +22,10 @@ const mockPlatformsDatabase = {
     6: {name: "PlayStation 5", manufacturerName: "Sony", releaseYear: 2020, price: 499.99},
     7: {name: "Xbox Series X", manufacturerName: "Microsoft", releaseYear: 2020, price: 499.99},
     8: {name: "Xbox", manufacturerName: "Microsoft", releaseYear: 2001, price: 299.99}
+};
+const mockGameSeriesDatabase = {
+    1: {name: "Halo", seriesEntryIds: [3], developerIds: [1]},
+    2: {name: "Horizon", seriesEntryIds: [2,6,7], developerIds: [2,4]}
 };
 
 const resolvers = {
@@ -126,6 +132,16 @@ const resolvers = {
             }
             return games;
         },
+        getAllGameSeries: () => {
+            var gameSeriesArray = [];
+            for (var id in mockGameSeriesDatabase) {
+                if (mockGameSeriesDatabase.hasOwnProperty(id)) {
+                    var gameSeries = {id: id, ...mockGameSeriesDatabase[id]};
+                    gameSeriesArray.push(gameSeries);
+                }
+            }
+            return gameSeriesArray;
+        },
         getDeveloper: (_, { id }) => {
             var devData = mockDevelopersDatabase[id];
             return (devData === undefined || devData === null) ? null : {id: id, ...devData};
@@ -150,6 +166,20 @@ const resolvers = {
                 } else {
                     throw new Error(`Error: Failed to add Game. Unable to create reciprocal link to Game with id ${newId} 
                                     on Developer with id ${developerId}: Developer with id ${developerId} was not found`);
+                }
+            }
+            if (gameInput["seriesId"] !== undefined && gameInput["seriesId"] !== null) {
+                var seriesId = gameInput["seriesId"];
+                var gameSeriesData = mockGameSeriesDatabase[seriesId];
+                if (gameSeriesData !== undefined && gameSeriesData !== null) {
+                    if (gameSeriesData["seriesEntryIds"] === undefined || gameSeriesData["seriesEntryIds"] === null) {
+                        gameSeriesData["seriesEntryIds"] = [newId];
+                    } else {
+                        gameSeriesData["seriesEntryIds"].push(newId);
+                    }
+                } else {
+                    throw new Error(`Error: Failed to add Game. Unable to create reciprocal link to Game with id ${newId} 
+                                    on GameSeries with id ${seriesId}: GameSeries with id ${seriesId} was not found`);
                 }
             }
             mockGamesDatabase[newId] = gameInput;
@@ -213,6 +243,48 @@ const resolvers = {
                 }
             }
             return platforms;
+        },
+        series: (resolvedGame) => {
+            var seriesId = resolvedGame.seriesId;
+            if (seriesId === undefined || seriesId === null) {
+                return null;
+            } else {
+                var seriesData = mockGameSeriesDatabase[seriesId];
+                if (seriesData === undefined && seriesData === null) {
+                    throw new Error(`Error: no series data found`);
+                }
+                return {id: seriesId, ...seriesData};
+            }
+        }
+    },
+    GameSeries: {
+        seriesEntries: (resolvedSeries) => {
+            var gameIds = resolvedSeries.seriesEntryIds;
+            if (gameIds === undefined || gameIds === null) {
+                return [];
+            }
+            var seriesEntries = [];
+            for (var id of gameIds) {
+                var gameData = mockGamesDatabase[id];
+                if (gameData !== undefined && gameData !== null) {
+                    seriesEntries.push({id: id, ...gameData});
+                }
+            }
+            return seriesEntries;
+        },
+        developers: (resolvedSeries) => {
+            var developerIds = resolvedSeries.developerIds;
+            if (developerIds === undefined || developerIds === null) {
+                return [];
+            }
+            var seriesDevelopers = [];
+            for (var id of developerIds) {
+                var developerData = mockDevelopersDatabase[id];
+                if (developerData !== undefined && developerData !== null) {
+                    seriesDevelopers.push({id: id, ...developerData});
+                }
+            }
+            return seriesDevelopers;
         }
     },
     Developer: {
