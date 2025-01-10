@@ -24,10 +24,11 @@ This schema is intended to be expanded in the future to cover even more concepts
 
 The GraphQL server is a Node server written in Javascript, designed to use as few helper libraries as possible, in order to get as close as possible to raw GraphQL.
 
-No outside database connections exist in this server - instead, databases are mocked with in-memory objects and data. Currently there are "databases" for three core data types:
+No outside database connections exist in this server - instead, databases are mocked with in-memory objects and data. Currently there are "databases" for four core data types:
 - Games
 - Developers
 - Platforms
+- Game series
 
  A small amount of starter data is loaded when the server is started. This can be queried and modified at will via the GraphQL schema, but be aware that resetting the server will also reset the data to its default, hard-coded state.
 
