@@ -44,3 +44,20 @@ To use this server:
   - The server root runs on http://localhost:4000 by default.
   - By default, the server will be run using [Nodemon](https://nodemon.io/) on [index.js](./index.js). While running via Nodemon, any changes to server source code will cause the server to restart automatically and immediately reflect your changes.
 - Navigate to http://localhost:4000/graphql to test the server and schema using GraphiQL, or send GraphQL requests to http://localhost:4000/graphql with your preferred web API testing tool.
+
+## Changelog
+
+### 2024-01-10
+
+- Add a new type GameSeries to the schema.
+  - GameSeries represents a game franchise/IP in its entirety.
+  - A GameSeries can contain multiple Game entries, as well as multiple Developers that have created entries in that series.
+- Update Game type to include a field for obtaining the series to which a Game belongs.
+- Add new types GameSeriesInput and GameSeriesDetailsInput, complex multi-level inputs that handle the creation of a GameSeries when adding a new Game.
+- Update addGame operation to include a complex input that can be used to link a new game to a series.
+  - Providing the ID of an existing series will link the new game to the existing series. OR:
+  - Omitting an existing ID and providing a GameSeriesDetailsInput object will allow for the creation of a new GameSeries to which the new game will be added, as well as the option for providing the IDs of existing Games that should also be made part of the new GameSeries.
+
+### 2024-05-09
+
+- First version of server and schema.
