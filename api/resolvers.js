@@ -185,7 +185,9 @@ const resolvers = {
                         if (seriesDetailsInput["seriesEntryIds"] !== undefined && seriesDetailsInput["seriesEntryIds"] !== null) {
                             // Add provided array of game ids to new series object
                             newGameSeries["seriesEntryIds"] = seriesDetailsInput["seriesEntryIds"];
-                            // TODO: for each series entry (existing game) ID, get the game from the games database and update the series id
+                            for (var existingGameId of newGameSeries["seriesEntryIds"]) {
+                                mockGamesDatabase[existingGameId]["seriesId"] = newGameSeriesId;
+                            }
                             newGameSeries["seriesEntryIds"].push(newId);
                         }
                         if (seriesDetailsInput["developerIds"] !== undefined && seriesDetailsInput["developerIds"] !== null) {
